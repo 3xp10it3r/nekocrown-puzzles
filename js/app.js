@@ -534,10 +534,12 @@ class NeonCrownApp {
           <p>Reward: <strong>+${coinReward} Neon Coins 🪙</strong> ${hintsUsed === 0 ? '• Flawless No-Hint Solve!' : ''}</p>
           ${shareBlockHtml}
         </div>
-        <div class="sim-ad-actions">
-          ${emojiGrid ? `<button class="btn-secondary" id="win-share-grid">📤 Share Grid</button>` : ''}
-          <button class="btn-secondary" id="win-double-ad">🎬 2x (+${coinReward} 🪙)</button>
+        <div class="modal-actions-stack">
           <button class="btn-primary" id="win-next-lvl">${window.i18n.t('nextLevel')} →</button>
+          <div class="modal-actions-row">
+            ${emojiGrid ? `<button class="btn-secondary" id="win-share-grid">📤 Share Grid</button>` : ''}
+            <button class="btn-secondary" id="win-double-ad">🎬 2x (+${coinReward} 🪙)</button>
+          </div>
         </div>
       </div>
     `;
@@ -802,9 +804,8 @@ class NeonCrownApp {
   }
 
   openSettingsModal() {
-    const stats = window.monetization.adStats;
     const langs = [
-      { code: 'en', label: '🇮🇳/🇺🇸 English' },
+      { code: 'en', label: '🇺🇸 English' },
       { code: 'hi', label: '🇮🇳 हिन्दी (Hindi)' },
       { code: 'es', label: '🇪🇸 Español' },
       { code: 'pt', label: '🇧🇷 Português' },
@@ -821,43 +822,36 @@ class NeonCrownApp {
     overlay.innerHTML = `
       <div class="modal-sheet">
         <div class="modal-sheet-header">
-          <h3>⚙️ Settings, Region &amp; Telemetry</h3>
+          <h3>⚙️ Settings</h3>
           <button class="modal-close-btn" id="settings-close">✕</button>
         </div>
         <div class="modal-sheet-body">
           <div class="setting-row">
-            <span>🔊 Synthesized Sound Effects</span>
-            <button class="btn-secondary" id="toggle-sound-btn">${window.audioEngine.soundEnabled ? 'ON' : 'OFF'}</button>
+            <div class="setting-item-left">
+              <span class="setting-icon-badge">🔊</span>
+              <span>Sound Effects</span>
+            </div>
+            <button class="toggle-pill-btn ${window.audioEngine.soundEnabled ? 'is-on' : ''}" id="toggle-sound-btn">${window.audioEngine.soundEnabled ? 'ON' : 'OFF'}</button>
           </div>
           <div class="setting-row">
-            <span>📳 Haptic Vibration</span>
-            <button class="btn-secondary" id="toggle-haptic-btn">${window.audioEngine.hapticsEnabled ? 'ON' : 'OFF'}</button>
+            <div class="setting-item-left">
+              <span class="setting-icon-badge">📳</span>
+              <span>Vibration</span>
+            </div>
+            <button class="toggle-pill-btn ${window.audioEngine.hapticsEnabled ? 'is-on' : ''}" id="toggle-haptic-btn">${window.audioEngine.hapticsEnabled ? 'ON' : 'OFF'}</button>
           </div>
           <div class="setting-row">
-            <span>💱 Store Currency (PPP)</span>
-            <select id="curr-select" class="lang-dropdown">
-              ${Object.values(window.CURRENCY_TIERS).map(c => `<option value="${c.code}" ${window.monetization.currency === c.code ? 'selected' : ''}>${c.label}</option>`).join('')}
-            </select>
-          </div>
-          <div class="setting-row">
-            <span>🌍 App Language (10 Locales)</span>
+            <div class="setting-item-left">
+              <span class="setting-icon-badge">🌍</span>
+              <span>Language</span>
+            </div>
             <select id="lang-select" class="lang-dropdown">
               ${langs.map(l => `<option value="${l.code}" ${window.i18n.lang === l.code ? 'selected' : ''}>${l.label}</option>`).join('')}
             </select>
           </div>
 
-          <h4 class="section-subhead">📊 Monetization &amp; Player Telemetry</h4>
-          <div class="telemetry-box">
-            <div>Total Puzzles Solved: <strong>${window.monetization.totalLevelsCompleted}</strong></div>
-            <div>Rewarded Ads Watched: <strong>${stats.rewarded}</strong></div>
-            <div>Interstitials Served: <strong>${stats.interstitial}</strong></div>
-            <div>IAP Purchases Completed: <strong>${stats.iapCount}</strong></div>
-            <div>Ad-Free VIP Status: <strong>${window.monetization.adsRemoved ? 'ACTIVE 👑' : 'Free Tier'}</strong></div>
-          </div>
-
           <div class="legal-links">
-            <a href="privacy-policy.html" target="_blank">Privacy Policy (GDPR/DPDP)</a> •
-            <a href="app-ads.txt" target="_blank">View app-ads.txt</a>
+            <a href="privacy-policy.html" target="_blank">Privacy Policy</a>
           </div>
         </div>
       </div>
@@ -872,19 +866,16 @@ class NeonCrownApp {
     overlay.querySelector('#toggle-sound-btn').addEventListener('click', (e) => {
       window.audioEngine.soundEnabled = !window.audioEngine.soundEnabled;
       localStorage.setItem('nc_sound', String(window.audioEngine.soundEnabled));
-      e.target.textContent = window.audioEngine.soundEnabled ? 'ON' : 'OFF';
+      e.currentTarget.textContent = window.audioEngine.soundEnabled ? 'ON' : 'OFF';
+      e.currentTarget.classList.toggle('is-on', window.audioEngine.soundEnabled);
       window.audioEngine.playTap();
     });
 
     overlay.querySelector('#toggle-haptic-btn').addEventListener('click', (e) => {
       window.audioEngine.hapticsEnabled = !window.audioEngine.hapticsEnabled;
       localStorage.setItem('nc_haptics', String(window.audioEngine.hapticsEnabled));
-      e.target.textContent = window.audioEngine.hapticsEnabled ? 'ON' : 'OFF';
-    });
-
-    overlay.querySelector('#curr-select').addEventListener('change', (e) => {
-      window.monetization.setCurrency(e.target.value);
-      this.showToast(`Store currency set to ${e.target.value}!`);
+      e.currentTarget.textContent = window.audioEngine.hapticsEnabled ? 'ON' : 'OFF';
+      e.currentTarget.classList.toggle('is-on', window.audioEngine.hapticsEnabled);
     });
 
     overlay.querySelector('#lang-select').addEventListener('change', (e) => {
