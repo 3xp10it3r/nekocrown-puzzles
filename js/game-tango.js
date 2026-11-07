@@ -68,6 +68,11 @@ class TangoGameEngine {
   startTimer() {
     clearInterval(this.timerInterval);
     this.timerSec = 0;
+    this.resumeTimer();
+  }
+
+  resumeTimer() {
+    clearInterval(this.timerInterval);
     this.updateTimerDisplay();
     this.timerInterval = setInterval(() => {
       if (!this.isSolved) {
@@ -633,8 +638,12 @@ class TangoGameEngine {
         const half = Math.floor(this.size / 2);
         const ok = s === half && m === half;
         const err = s > half || m > half;
-        el.className = `tango-axis-pill ${ok ? 'axis-ok' : err ? 'axis-err' : ''}`;
-        el.innerHTML = `<span>☀️${s}</span><span>🌙${m}</span>`;
+        const sig = `${s},${m}`;
+        if (el.dataset.sig !== sig) {
+          el.dataset.sig = sig;
+          el.className = `tango-axis-pill ${ok ? 'axis-ok' : err ? 'axis-err' : ''}`;
+          el.innerHTML = `<span>☀️${s}</span><span>🌙${m}</span>`;
+        }
       });
     }
     if (rowCntEl) {
@@ -643,8 +652,12 @@ class TangoGameEngine {
         const half = Math.floor(this.size / 2);
         const ok = s === half && m === half;
         const err = s > half || m > half;
-        el.className = `tango-axis-pill ${ok ? 'axis-ok' : err ? 'axis-err' : ''}`;
-        el.innerHTML = `<span>☀️${s}</span><span>🌙${m}</span>`;
+        const sig = `${s},${m}`;
+        if (el.dataset.sig !== sig) {
+          el.dataset.sig = sig;
+          el.className = `tango-axis-pill ${ok ? 'axis-ok' : err ? 'axis-err' : ''}`;
+          el.innerHTML = `<span>☀️${s}</span><span>🌙${m}</span>`;
+        }
       });
     }
 

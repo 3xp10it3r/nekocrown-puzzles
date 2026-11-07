@@ -143,6 +143,11 @@ class CrownGameEngine {
   startTimer() {
     clearInterval(this.timerInterval);
     this.timerSec = 0;
+    this.resumeTimer();
+  }
+
+  resumeTimer() {
+    clearInterval(this.timerInterval);
     this.updateTimerDisplay();
     this.timerInterval = setInterval(() => {
       if (!this.isSolved) {

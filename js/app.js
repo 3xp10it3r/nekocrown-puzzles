@@ -250,15 +250,18 @@ class NeonCrownApp {
       brandHome.classList.add('hidden');
       backBar.classList.remove('hidden');
       const titles = {
-        crown: '🐾 Neko Queens',
-        block: '🟦 Neon Block Blast',
-        tango: '☀️ Binary Tango'
+        crown: '🐾 Queens',
+        block: '🟦 Blocks',
+        tango: '☀️ Tango'
       };
       if (modeTitle) modeTitle.textContent = titles[screenName] || 'NekoCrown';
     }
   }
 
   navigateTo(screenName) {
+    if (this.activeScreen === screenName && screenName !== 'home') {
+      return;
+    }
     if (this.blockEngine && this.blockEngine.floatingEl) {
       this.blockEngine.floatingEl.remove();
       this.blockEngine.floatingEl = null;
@@ -284,7 +287,18 @@ class NeonCrownApp {
     } else if (screenName === 'crown') {
       if (this.tangoEngine) this.tangoEngine.stopTimer();
       const idx = this.getTierProgress('crown', this.crownEngine.tier);
-      this.crownEngine.loadLevel(this.crownEngine.tier, idx, null, false);
+      if (
+        this.crownEngine.levelData &&
+        !this.crownEngine.isDailyMode &&
+        !this.crownEngine.isSolved &&
+        this.crownEngine.levelIndex === idx &&
+        document.getElementById('crown-grid-el')
+      ) {
+        this.crownEngine.resumeTimer();
+        this.crownEngine.refreshGridUI();
+      } else {
+        this.crownEngine.loadLevel(this.crownEngine.tier, idx, null, false);
+      }
     } else if (screenName === 'block') {
       if (this.crownEngine) this.crownEngine.stopTimer();
       if (this.tangoEngine) this.tangoEngine.stopTimer();
@@ -298,7 +312,18 @@ class NeonCrownApp {
     } else if (screenName === 'tango') {
       if (this.crownEngine) this.crownEngine.stopTimer();
       const idx = this.getTierProgress('tango');
-      this.tangoEngine.loadLevel(idx, null, false);
+      if (
+        this.tangoEngine.levelData &&
+        !this.tangoEngine.isDailyMode &&
+        !this.tangoEngine.isSolved &&
+        this.tangoEngine.levelIndex === idx &&
+        document.getElementById('tango-grid-el')
+      ) {
+        this.tangoEngine.resumeTimer();
+        this.tangoEngine.refreshGridUI();
+      } else {
+        this.tangoEngine.loadLevel(idx, null, false);
+      }
     }
   }
 
