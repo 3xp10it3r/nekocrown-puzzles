@@ -216,8 +216,13 @@ class MonetizationManager {
       bannerEl.classList.add('hidden');
     } else {
       bannerEl.classList.remove('hidden');
-      const priceSpan = document.getElementById('banner-vip-price');
-      if (priceSpan) priceSpan.textContent = this.getPrice('vip_founder_bundle');
+      if (this.isNative) {
+        bannerEl.style.visibility = 'hidden';
+      } else {
+        bannerEl.style.visibility = 'visible';
+        const priceSpan = document.getElementById('banner-vip-price');
+        if (priceSpan) priceSpan.textContent = this.getPrice('vip_founder_bundle');
+      }
     }
   }
 
