@@ -1,0 +1,30 @@
+{
+  "name": "nekocrown-cozy-puzzles",
+  "version": "1.0.0",
+  "description": "NekoCrown: Cozy Cat & Logic — Neko Queens, Binary Tango & Block Blast Puzzle Game for Google Play Store",
+  "private": true,
+  "scripts": {
+    "start": "npx serve www -l 4173",
+    "generate:levels": "python3 scripts/generate_levels.py",
+    "generate:assets": "python3 scripts/generate_store_assets.py",
+    "cap:init": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "android:apk": "cd android && ./gradlew assembleDebug",
+    "android:aab": "cd android && ./gradlew bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^6.0.0",
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/haptics": "^6.0.1",
+    "@capacitor/preferences": "^6.0.2",
+    "@capacitor/share": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1",
+    "@revenuecat/purchases-capacitor": "^8.1.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}

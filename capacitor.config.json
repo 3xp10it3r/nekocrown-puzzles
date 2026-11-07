@@ -1,0 +1,25 @@
+{
+  "appId": "com.nekocrown.cozypuzzles",
+  "appName": "NekoCrown",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0B0E17"
+    },
+    "AdMob": {
+      "appIdAndroid": "ca-app-pub-3940256099942544~3347511713",
+      "initializeForTesting": false
+    }
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#0B0E17"
+  }
+}
