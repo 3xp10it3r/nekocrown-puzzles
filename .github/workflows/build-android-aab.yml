@@ -37,9 +37,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Verify Puzzle Level Pack & Store Assets
         run: |
           python3 scripts/generate_levels.py
@@ -48,23 +45,21 @@ jobs:
 
       - name: Install Dependencies & Add Android Platform
         run: |
-          npm install
+          npm install --legacy-peer-deps
           if [ ! -d "android" ]; then
             npx cap add android
           fi
           npx cap sync android
 
-      - name: Inject Version Code, AdMob App ID & Release Keystore
+      - name: Inject Version Code & AdMob App ID
         env:
           VERSION_CODE: ${{ github.event.inputs.version_code || '1' }}
           VERSION_NAME: ${{ github.event.inputs.version_name || '1.0.0' }}
           ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID || 'ca-app-pub-3940256099942544~3347511713' }}
         run: |
-          # Update versionCode and versionName in android/app/build.gradle
           sed -i "s/versionCode 1/versionCode ${VERSION_CODE}/g" android/app/build.gradle
           sed -i "s/versionName \"1.0\"/versionName \"${VERSION_NAME}\"/g" android/app/build.gradle
 
-          # Inject AdMob APPLICATION_ID meta-data into AndroidManifest.xml if not present
           if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" android/app/src/main/AndroidManifest.xml; then
             sed -i "s|</application>|    <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"${ADMOB_APP_ID}\"/>\n    </application>|" android/app/src/main/AndroidManifest.xml
           fi
@@ -92,11 +87,12 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=$PWD/app/upload-keystore.jks \
-            -Pandroid.injected.signing.store.password="${KEYSTORE_PASS}" \
-            -Pandroid.injected.signing.key.alias="${KEY_ALIAS}" \
-            -Pandroid.injected.signing.key.password="${KEY_PASS}"
+          ./gradlew bundleRelease
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore app/upload-keystore.jks \
+            -storepass "${KEYSTORE_PASS}" \
+            -keypass "${KEY_PASS}" \
+            app/build/outputs/bundle/release/app-release.aab "${KEY_ALIAS}"
 
       - name: Upload Play Store AAB, Debug APK & Keystore Artifacts
         uses: actions/upload-artifact@v4
