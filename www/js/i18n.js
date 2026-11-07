@@ -58,7 +58,7 @@ const TRANSLATIONS = {
     removeAds: "Quitar Anuncios",
     watchAdHint: "Ver Anuncio (+1 Pista)",
     watchAdCoins: "+150 Monedas Gratis",
-    reviveAd: "Revivir + Explosión 3×3",
+    reviveAd: "Revivir + Explosión 4×4",
     levelComplete: "¡PUZLE RESUELTO!",
     nextLevel: "Siguiente Nivel",
     copiedShare: "¡Resultado copiado al portapapeles!"
@@ -88,7 +88,7 @@ const TRANSLATIONS = {
     removeAds: "Sem Anúncios",
     watchAdHint: "Ver Vídeo (+1 Dica)",
     watchAdCoins: "+150 Moedas Grátis",
-    reviveAd: "Reviver + Limpar 3×3",
+    reviveAd: "Reviver + Limpar 4×4",
     levelComplete: "PUZZLE RESOLVIDO!",
     nextLevel: "Próximo Nível",
     copiedShare: "Placar copiado para a área de transferência!"
@@ -118,7 +118,7 @@ const TRANSLATIONS = {
     removeAds: "Werbung entfernen",
     watchAdHint: "Video (+1 Tipp)",
     watchAdCoins: "+150 Gratis-Münzen",
-    reviveAd: "Weiter + 3×3 Bombe",
+    reviveAd: "Weiter + 4×4 Bombe",
     levelComplete: "RÄTSEL GELÖST!",
     nextLevel: "Nächstes Level",
     copiedShare: "Ergebnis in die Zwischenablage kopiert!"
@@ -148,7 +148,7 @@ const TRANSLATIONS = {
     removeAds: "Sans Publicité",
     watchAdHint: "Vidéo (+1 Indice)",
     watchAdCoins: "+150 Pièces Gratuites",
-    reviveAd: "Continuer + Explosion 3×3",
+    reviveAd: "Continuer + Explosion 4×4",
     levelComplete: "PUZZLE RÉSOLU !",
     nextLevel: "Niveau Suivant",
     copiedShare: "Score copié dans le presse-papiers !"
@@ -178,7 +178,7 @@ const TRANSLATIONS = {
     removeAds: "विज्ञापन हटाएं",
     watchAdHint: "विज्ञापन देखें (+1 हिंट)",
     watchAdCoins: "+150 मुफ़्त कॉइन्स",
-    reviveAd: "रिवाइव + 3×3 ब्लास्ट",
+    reviveAd: "रिवाइव + 4×4 ब्लास्ट",
     levelComplete: "पहेली हल हो गई!",
     nextLevel: "अगला लेवल",
     copiedShare: "इमोजी स्कोर कॉपी हो गया!"
@@ -208,7 +208,7 @@ const TRANSLATIONS = {
     removeAds: "広告を完全削除",
     watchAdHint: "動画で+1ヒント",
     watchAdCoins: "無料+150コイン",
-    reviveAd: "復活＋中央3×3爆破",
+    reviveAd: "復活＋中央4×4爆破",
     levelComplete: "ステージクリア！",
     nextLevel: "次のレベルへ",
     copiedShare: "スコアをコピーしました！"
@@ -238,7 +238,7 @@ const TRANSLATIONS = {
     removeAds: "광고 영구 제거",
     watchAdHint: "광고 보고 +1 힌트",
     watchAdCoins: "무료 +150 코인",
-    reviveAd: "부활 + 3×3 폭파",
+    reviveAd: "부활 + 4×4 폭파",
     levelComplete: "퍼즐 클리어!",
     nextLevel: "다음 레벨",
     copiedShare: "클립보드에 결과가 복사되었습니다!"
@@ -268,7 +268,7 @@ const TRANSLATIONS = {
     removeAds: "Hapus Iklan",
     watchAdHint: "Tonton Iklan (+1 Petunjuk)",
     watchAdCoins: "Gratis +150 Koin",
-    reviveAd: "Bangkit + Ledakkan 3×3",
+    reviveAd: "Bangkit + Ledakkan 4×4",
     levelComplete: "PUZZLE TERPECAHKAN!",
     nextLevel: "Level Berikutnya",
     copiedShare: "Skor emoji disalin!"
@@ -298,7 +298,7 @@ const TRANSLATIONS = {
     removeAds: "Reklamları Kaldır",
     watchAdHint: "Reklam İzle (+1 İpucu)",
     watchAdCoins: "Ücretsiz +150 Altın",
-    reviveAd: "Devam Et + 3×3 Patlat",
+    reviveAd: "Devam Et + 4×4 Patlat",
     levelComplete: "BULMACA ÇÖZÜLDÜ!",
     nextLevel: "Sonraki Seviye",
     copiedShare: "Emoji skoru panoya kopyalandı!"

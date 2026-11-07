@@ -545,7 +545,8 @@ class BlockBlastEngine {
       if (shape) {
         const maxR = Math.max(...shape.cells.map(p => p[0])) + 1;
         const maxC = Math.max(...shape.cells.map(p => p[1])) + 1;
-        const cellPx = Math.max(maxR, maxC) >= 4 ? 17 : 21;
+        const maxDim = Math.max(maxR, maxC);
+        const cellPx = maxDim >= 5 ? 13 : maxDim === 4 ? 16 : maxDim === 3 ? 19 : 21;
         const miniGrid = document.createElement('div');
         miniGrid.className = 'mini-polyomino';
         miniGrid.style.gridTemplateColumns = `repeat(${maxC}, ${cellPx}px)`;

@@ -110,6 +110,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 49px;
   padding: 8px 10px;
   padding-top: max(8px, env(safe-area-inset-top, 8px));
   background-color: var(--bg-secondary);
@@ -170,6 +171,7 @@ html, body {
 .header-back-cluster {
   display: flex;
   align-items: center;
+  min-height: 32px;
   gap: 6px;
   min-width: 0;
   flex: 1 1 0%;
@@ -221,6 +223,7 @@ html, body {
   border-radius: 999px;
   font-size: 11px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
   color: var(--text-main);
   flex-shrink: 0;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
@@ -313,6 +316,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .daily-tag {
@@ -320,6 +324,10 @@ html, body {
   font-weight: 900;
   letter-spacing: 0.9px;
   color: var(--accent-primary);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .daily-date {
@@ -329,6 +337,8 @@ html, body {
   padding: 3px 9px;
   border-radius: 99px;
   color: var(--text-main);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .daily-hero-card h2 {
@@ -347,6 +357,16 @@ html, body {
   display: flex;
   gap: 8px;
   margin-top: 2px;
+  width: 100%;
+}
+
+.daily-hero-actions > button {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 10px 10px;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-3d-gold {
@@ -413,6 +433,7 @@ html, body {
 
 .mode-card-body {
   flex: 1;
+  min-width: 0;
 }
 
 .mode-card-header {
@@ -425,15 +446,22 @@ html, body {
 .mode-card-header h3 {
   font-size: 16px;
   font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .mode-prog-badge {
   font-size: 11px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
   color: var(--accent-primary);
   background: rgba(0, 245, 212, 0.12);
   padding: 2px 8px;
   border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .mode-card-body p {
@@ -450,6 +478,8 @@ html, body {
   padding: 6px 10px;
   border-radius: 10px;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .home-quick-row {
@@ -471,9 +501,18 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+  min-width: 0;
   gap: 4px;
   cursor: pointer;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.quick-tile-btn span:not(.tile-emoji):not(.quest-notify-dot) {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .quick-tile-btn:active {
@@ -526,10 +565,13 @@ html, body {
 .meta-badge {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  padding: 5px 10px;
+  padding: 5px 8px;
   border-radius: 9px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .meta-help-btn,
@@ -572,30 +614,35 @@ html, body {
 
 .hint-deduction-banner {
   background: var(--bg-secondary);
-  border-left: 3.5px solid var(--accent-primary);
-  padding: 7px 11px;
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--accent-primary);
+  padding: 5px 10px;
   border-radius: 10px;
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 11.5px;
+  line-height: 1.28;
   font-weight: 700;
   color: var(--text-main);
-  min-height: 36px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  overflow: hidden;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .hint-deduction-banner.banner-error {
   background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
   border-left-color: #EF4444;
   color: #FCA5A5;
 }
 
 .hint-deduction-banner.banner-hint-active {
   background: rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(16, 185, 129, 0.45);
-  border-left: 4px solid #10B981;
+  border-color: rgba(16, 185, 129, 0.45);
+  border-left-color: #10B981;
   color: #ECFDF5;
 }
 
@@ -620,12 +667,16 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 32px;
+  flex-wrap: nowrap;
   gap: 6px;
 }
 
 .level-stepper {
   display: inline-flex;
   align-items: center;
+  min-height: 32px;
+  flex-shrink: 0;
   gap: 6px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -634,9 +685,13 @@ html, body {
 }
 
 .level-pill-title {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   padding: 0 4px;
+  min-width: 72px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .step-arrow {
@@ -661,7 +716,7 @@ html, body {
 }
 
 .queens-glass-tray {
-  --queens-dim: min(calc(100vw - 20px), calc(100dvh - 315px), 440px);
+  --queens-dim: min(calc(100vw - 20px), calc(100dvh - 380px), 420px);
   width: var(--queens-dim);
   height: var(--queens-dim);
   padding: 8px;
@@ -814,6 +869,8 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .block-restart-top-btn {
@@ -840,11 +897,18 @@ html, body {
   font-weight: 800;
   color: var(--text-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .score-val {
-  font-size: 17px;
+  font-size: 16px;
+  line-height: 1.2;
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--accent-primary);
 }
 
@@ -857,7 +921,7 @@ html, body {
 }
 
 .block-grid {
-  --block-dim: min(calc(100vw - 20px), calc(100dvh - 390px), 400px);
+  --block-dim: min(calc(100vw - 20px), calc(100dvh - 455px), 380px);
   width: var(--block-dim);
   height: var(--block-dim);
   display: grid;
@@ -893,8 +957,8 @@ html, body {
 }
 
 .block-cell.block-will-clear {
-  box-shadow: 0 0 0 2px #FFE066, inset 0 3px 0 rgba(255, 255, 255, 0.6) !important;
-  filter: brightness(1.18);
+  border-color: #FFF3B0 !important;
+  box-shadow: 0 0 0 2px #FFE066, inset 0 0 0 99px rgba(255, 255, 255, 0.22), inset 0 3px 0 rgba(255, 255, 255, 0.65) !important;
 }
 
 .floating-score-popup {
@@ -917,18 +981,23 @@ html, body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  min-height: 82px;
+  height: 88px;
+  min-height: 88px;
+  max-height: 88px;
   flex-shrink: 0;
 }
 
 .tray-slot {
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 4px;
   cursor: grab;
   touch-action: none;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
@@ -971,7 +1040,7 @@ html, body {
 
 /* BINARY TANGO BOARD WITH LIVE COUNTERS & HIGH-CONTRAST CONNECTORS */
 .tango-board-frame {
-  --tango-dim: min(calc(100vw - 20px), calc(100dvh - 305px), 440px);
+  --tango-dim: min(calc(100vw - 20px), calc(100dvh - 345px), 420px);
   width: var(--tango-dim);
   margin: 0 auto;
   display: flex;
@@ -983,9 +1052,10 @@ html, body {
 .tango-col-counters {
   display: grid;
   grid-template-columns: repeat(var(--grid-size, 6), minmax(0, 1fr));
-  padding-left: 42px;
+  padding-left: 52px;
+  padding-right: 10px;
   gap: 7px;
-  height: 30px;
+  height: 34px;
 }
 
 .tango-main-row {
@@ -997,6 +1067,7 @@ html, body {
 .tango-row-counters {
   width: 36px;
   height: calc(var(--tango-dim) - 42px);
+  padding: 10px 0;
   display: grid;
   grid-template-rows: repeat(var(--grid-size, 6), minmax(0, 1fr));
   gap: 7px;
@@ -1009,6 +1080,9 @@ html, body {
   border-radius: 7px;
   font-size: 9.5px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
   color: var(--text-muted);
   display: flex;
   flex-direction: column;
@@ -1162,10 +1236,20 @@ html, body {
   background-color: rgba(0, 245, 212, 0.08);
 }
 
+#crown-autox-btn strong {
+  display: inline-block;
+  min-width: 26px;
+  text-align: center;
+}
+
+.hint-count-inline {
+  font-variant-numeric: tabular-nums;
+}
+
 .ctrl-btn.hint-cta-btn {
   background-color: #FFC300;
   color: #1A1100;
-  border: none;
+  border: 1.5px solid #FFC300;
   font-weight: 900;
   box-shadow: 0 3px 0 #B27800;
 }
@@ -1321,6 +1405,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 0 12px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   font-size: 11.5px;
@@ -1331,6 +1416,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .ad-tag {
@@ -1340,6 +1427,8 @@ html, body {
   font-weight: 900;
   padding: 2px 5px;
   border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .ad-remove-mini {
@@ -1351,6 +1440,8 @@ html, body {
   padding: 5px 9px;
   border-radius: 7px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Modals, Store & Rules Cards */

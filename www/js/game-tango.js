@@ -35,10 +35,14 @@ class TangoGameEngine {
     this.isSolved = false;
     this.isDailyMode = false;
     this.onDailyStageWin = null;
+    this.lastTapInfo = null;
+    this.conflictTimeout = null;
   }
 
   loadLevel(index = 0, customLevelData = null, isDaily = false, onDailyWin = null) {
     clearTimeout(this.winTimeout);
+    clearTimeout(this.conflictTimeout);
+    this.lastTapInfo = null;
     this.levelIndex = index;
     this.isDailyMode = isDaily;
     this.onDailyStageWin = onDailyWin;
@@ -85,6 +89,7 @@ class TangoGameEngine {
   stopTimer() {
     clearInterval(this.timerInterval);
     clearTimeout(this.winTimeout);
+    clearTimeout(this.conflictTimeout);
   }
 
   updateTimerDisplay() {
@@ -103,6 +108,8 @@ class TangoGameEngine {
 
   undo() {
     if (this.isSolved || this.history.length === 0) return;
+    clearTimeout(this.conflictTimeout);
+    this.lastTapInfo = null;
     this.board = this.history.pop();
     window.audioEngine.playTap();
     this.refreshGridUI();
@@ -124,6 +131,8 @@ class TangoGameEngine {
 
   resetBoard() {
     if (this.isSolved) return;
+    clearTimeout(this.conflictTimeout);
+    this.lastTapInfo = null;
     this.pushHistory();
     this.board = this.levelData.clues.map(row => [...row]);
     window.audioEngine.playTap();
@@ -133,16 +142,46 @@ class TangoGameEngine {
 
   handleCellTap(r, c) {
     if (this.isSolved || this.locked[r][c]) return;
-    this.pushHistory();
+    clearTimeout(this.conflictTimeout);
+    const now = performance.now();
+    const isFastSecondTap =
+      this.lastTapInfo &&
+      this.lastTapInfo.r === r &&
+      this.lastTapInfo.c === c &&
+      now - this.lastTapInfo.time <= 360;
+
+    if (!isFastSecondTap) {
+      this.pushHistory();
+    }
+    this.lastTapInfo = { r, c, time: now };
+
     const cur = this.board[r][c];
     if (cur === -1) {
       this.board[r][c] = 1;
       window.audioEngine.playSunPlace();
+      this.refreshGridUI();
+      // Debounce conflict check on Tap 1 (Sun) so a fast double-tap to Moon (0) doesn't flash a false Sun conflict
+      let hasEmpty = false;
+      for (let rr = 0; rr < this.size; rr++) {
+        for (let cc = 0; cc < this.size; cc++) {
+          if (this.board[rr][cc] === -1) { hasEmpty = true; break; }
+        }
+        if (hasEmpty) break;
+      }
+      if (!hasEmpty && this.getConflicts().size === 0) {
+        this.checkWinCondition();
+      } else {
+        this.conflictTimeout = setTimeout(() => {
+          this.checkWinCondition();
+        }, 280);
+      }
+      return;
     } else if (cur === 1) {
       this.board[r][c] = 0;
       window.audioEngine.playMoonPlace();
     } else {
       this.board[r][c] = -1;
+      this.lastTapInfo = null;
       window.audioEngine.playTap();
     }
     this.refreshGridUI();
@@ -296,7 +335,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (Mistake Fixed): Row ${r + 1}, Col ${c + 1} had the wrong symbol. Corrected to ${symName(sol[r][c])}!`
+            `💡 Mistake Fixed: Row ${r + 1}, Col ${c + 1} corrected to ${symName(sol[r][c])}!`
           );
           return;
         }
@@ -308,20 +347,20 @@ class TangoGameEngine {
       const v1 = this.board[r1][c1];
       const v2 = this.board[r2][c2];
       if (v1 !== -1 && v2 === -1) {
-        const ruleText = type === '=' ? `must match` : `must be opposite to`;
+        const ruleText = type === '=' ? `matches` : `is opposite to`;
         applyHint(
           r2,
           c2,
-          `💡 Why ('${type}' Connector): (${r2 + 1},${c2 + 1}) ${ruleText} (${r1 + 1},${c1 + 1}) (${symName(v1)}) → ${symName(sol[r2][c2])}!`
+          `💡 '${type}' Clue: (${r2 + 1},${c2 + 1}) ${ruleText} (${r1 + 1},${c1 + 1}) → ${symName(sol[r2][c2])}!`
         );
         return;
       }
       if (v2 !== -1 && v1 === -1) {
-        const ruleText = type === '=' ? `must match` : `must be opposite to`;
+        const ruleText = type === '=' ? `matches` : `is opposite to`;
         applyHint(
           r1,
           c1,
-          `💡 Why ('${type}' Connector): (${r1 + 1},${c1 + 1}) ${ruleText} (${r2 + 1},${c2 + 1}) (${symName(v2)}) → ${symName(sol[r1][c1])}!`
+          `💡 '${type}' Clue: (${r1 + 1},${c1 + 1}) ${ruleText} (${r2 + 1},${c2 + 1}) → ${symName(sol[r1][c1])}!`
         );
         return;
       }
@@ -337,7 +376,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): Row ${r + 1} already has two ${symName(this.board[r][c - 1])}s at Cols ${c - 1}–${c}, so (${r + 1},${c + 1}) must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: Row ${r + 1} has two ${symName(this.board[r][c - 1])}s left of (${r + 1},${c + 1}) → ${symName(target)}!`
           );
           return;
         }
@@ -346,7 +385,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): Row ${r + 1} already has two ${symName(this.board[r][c + 1])}s at Cols ${c + 2}–${c + 3}, so (${r + 1},${c + 1}) must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: Row ${r + 1} has two ${symName(this.board[r][c + 1])}s right of (${r + 1},${c + 1}) → ${symName(target)}!`
           );
           return;
         }
@@ -355,7 +394,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): (${r + 1},${c + 1}) sits between two ${symName(this.board[r][c - 1])}s in Row ${r + 1}, so it must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: (${r + 1},${c + 1}) sits between two ${symName(this.board[r][c - 1])}s in Row ${r + 1} → ${symName(target)}!`
           );
           return;
         }
@@ -364,7 +403,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): Col ${c + 1} already has two ${symName(this.board[r - 1][c])}s at Rows ${r - 1}–${r}, so (${r + 1},${c + 1}) must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: Col ${c + 1} has two ${symName(this.board[r - 1][c])}s above (${r + 1},${c + 1}) → ${symName(target)}!`
           );
           return;
         }
@@ -373,7 +412,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): Col ${c + 1} already has two ${symName(this.board[r + 1][c])}s at Rows ${r + 2}–${r + 3}, so (${r + 1},${c + 1}) must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: Col ${c + 1} has two ${symName(this.board[r + 1][c])}s below (${r + 1},${c + 1}) → ${symName(target)}!`
           );
           return;
         }
@@ -382,7 +421,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (No 3-in-a-Row): (${r + 1},${c + 1}) sits between two ${symName(this.board[r - 1][c])}s in Col ${c + 1}, so it must be ${symName(target)}!`
+            `💡 No 3-in-a-Row: (${r + 1},${c + 1}) sits between two ${symName(this.board[r - 1][c])}s in Col ${c + 1} → ${symName(target)}!`
           );
           return;
         }
@@ -403,7 +442,7 @@ class TangoGameEngine {
             applyHint(
               r,
               c,
-              `💡 Why (Row Balance): Row ${r + 1} already has all ${half} ${fullSym}, so (${r + 1},${c + 1}) must be ${symName(sol[r][c])}!`
+              `💡 Row Balance: Row ${r + 1} already has ${half} ${fullSym}, so (${r + 1},${c + 1}) is ${symName(sol[r][c])}!`
             );
             return;
           }
@@ -423,7 +462,7 @@ class TangoGameEngine {
             applyHint(
               r,
               c,
-              `💡 Why (Column Balance): Col ${c + 1} already has all ${half} ${fullSym}, so (${r + 1},${c + 1}) must be ${symName(sol[r][c])}!`
+              `💡 Column Balance: Col ${c + 1} already has ${half} ${fullSym}, so (${r + 1},${c + 1}) is ${symName(sol[r][c])}!`
             );
             return;
           }
@@ -438,7 +477,7 @@ class TangoGameEngine {
           applyHint(
             r,
             c,
-            `💡 Why (Balance & Lookahead): Placing ${symName(1 - sol[r][c])} at (${r + 1},${c + 1}) would force 3-in-a-row or break the ${half}-of-each balance in Row ${r + 1} / Col ${c + 1}. Thus it must be ${symName(sol[r][c])}!`
+            `💡 Balance Deduction: Row ${r + 1} & Col ${c + 1} balance forces ${symName(sol[r][c])} at (${r + 1},${c + 1})!`
           );
           return;
         }

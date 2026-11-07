@@ -430,10 +430,10 @@ class CrownGameEngine {
     const bannerEl = document.getElementById('crown-hint-banner');
     const hadError = bannerEl && bannerEl.classList.contains('banner-error');
 
-    if ((this.lastPlacedCrown || hadError) && !preserveBanner) {
+    if (!preserveBanner && (this.lastPlacedCrown || hadError || crownCount >= 0)) {
       if (crownCount === 0) {
         this.setHintBanner(`1 Click: Toggle ✕ (Mark/Clear) • Fast Double-Click: Place 🐱 • Drag: Paint ✕`);
-      } else {
+      } else if (crownCount < this.size) {
         this.setHintBanner(`Purr-fect! ${this.size - crownCount} Cat${this.size - crownCount === 1 ? '' : 's'} left to place.`);
       }
     }
@@ -511,7 +511,7 @@ class CrownGameEngine {
           const p = QUEENS_CUSHION_PALETTE[reg % QUEENS_CUSHION_PALETTE.length];
           window.audioEngine.playHint();
           this.setHintBanner(
-            `💡 Why (Mistake Fixed): A Cat at Row ${r + 1}, Col ${c + 1} (${p.name}) steals a required row/column from another color group. Replaced with ✕!`,
+            `💡 Mistake Fixed: Cat at Row ${r + 1}, Col ${c + 1} (${p.name}) blocks another region. Marked ✕!`,
             false,
             true
           );
@@ -553,12 +553,12 @@ class CrownGameEngine {
       const p = QUEENS_CUSHION_PALETTE[reg % QUEENS_CUSHION_PALETTE.length];
       if (regionTotalCells[reg] === 1) {
         chosenRow = r;
-        reasoningText = `💡 Why (1-Tile Color Group): The ${p.name} region has only 1 tile on the entire board (Row ${r + 1}, Col ${c + 1}), so the ${p.name} 🐱 must go there!`;
+        reasoningText = `💡 1-Tile Region: ${p.name} has only 1 tile (Row ${r + 1}, Col ${c + 1}) — 🐱 must go there!`;
         highlightCells = [`${r},${c}`];
         break;
       } else if (openList.length === 1 && eff[r][c] === 0) {
         chosenRow = r;
-        reasoningText = `💡 Why (Last Tile in Color): Every other tile in the ${p.name} region is already eliminated (✕), leaving Row ${r + 1}, Col ${c + 1} as the only spot for ${p.name}'s 🐱!`;
+        reasoningText = `💡 Last Tile in ${p.name}: Row ${r + 1}, Col ${c + 1} is the only open spot left for ${p.name}'s 🐱!`;
         highlightCells = [`${r},${c}`];
         break;
       }
@@ -578,7 +578,7 @@ class CrownGameEngine {
         }
         if (rowOpen === 1) {
           chosenRow = r;
-          reasoningText = `💡 Why (Last Spot in Row ${r + 1}): All other columns in Row ${r + 1} are marked ✕, so Row ${r + 1}'s 🐱 is forced into Col ${c + 1} (${p.name})!`;
+          reasoningText = `💡 Last Spot in Row ${r + 1}: All other tiles in Row ${r + 1} are ✕, forcing 🐱 at Col ${c + 1} (${p.name})!`;
           highlightCells = [`${r},${c}`];
           break;
         }
@@ -589,7 +589,7 @@ class CrownGameEngine {
         }
         if (colOpen === 1) {
           chosenRow = r;
-          reasoningText = `💡 Why (Last Spot in Col ${c + 1}): All other rows in Column ${c + 1} are marked ✕, forcing Column ${c + 1}'s 🐱 into Row ${r + 1} (${p.name})!`;
+          reasoningText = `💡 Last Spot in Col ${c + 1}: All other tiles in Col ${c + 1} are ✕, forcing 🐱 at Row ${r + 1} (${p.name})!`;
           highlightCells = [`${r},${c}`];
           break;
         }
@@ -644,13 +644,13 @@ class CrownGameEngine {
         }
 
         if (blockedNeighborName) {
-          reasoningText = `💡 Why (No-Touch Elimination): Placing a Cat elsewhere in ${p.name} would block every valid tile of the ${blockedNeighborName} region. Thus 🐱 must go at Row ${chosenRow + 1}, Col ${c + 1}!`;
+          reasoningText = `💡 Elimination: Other ${p.name} spots block ${blockedNeighborName}, so 🐱 goes at Row ${chosenRow + 1}, Col ${c + 1}!`;
         } else if (rowsSet.size === 1) {
-          reasoningText = `💡 Why (Row Lock): The ${p.name} region (${openList.length} open tiles) lies entirely in Row ${chosenRow + 1}, locking Row ${chosenRow + 1} and forcing 🐱 at Col ${c + 1}!`;
+          reasoningText = `💡 Row Lock: ${p.name} lies in Row ${chosenRow + 1}, forcing 🐱 at Row ${chosenRow + 1}, Col ${c + 1}!`;
         } else if (colsSet.size === 1) {
-          reasoningText = `💡 Why (Column Lock): The ${p.name} region (${openList.length} open tiles) lies entirely in Column ${c + 1}, locking Col ${c + 1} and forcing 🐱 at Row ${chosenRow + 1}!`;
+          reasoningText = `💡 Column Lock: ${p.name} lies in Col ${c + 1}, forcing 🐱 at Row ${chosenRow + 1}, Col ${c + 1}!`;
         } else {
-          reasoningText = `💡 Why (Region & Line Intersection): The ${p.name} region has only ${openList.length} open tiles (Rows ${Array.from(rowsSet).join(',')}); row/column & diagonal constraints force 🐱 at Row ${chosenRow + 1}, Col ${c + 1}!`;
+          reasoningText = `💡 Line Deduction: Row/Col & no-touch rules in ${p.name} force 🐱 at Row ${chosenRow + 1}, Col ${c + 1}!`;
         }
         highlightCells = [`${chosenRow},${c}`];
       }
@@ -849,7 +849,9 @@ class CrownGameEngine {
 
         cell.addEventListener('pointerenter', () => {
           if (this.isDraggingX) {
-            this.lastTapInfo = null;
+            if (this.lastTapInfo && (this.lastTapInfo.r !== r || this.lastTapInfo.c !== c)) {
+              this.lastTapInfo = null;
+            }
             const eff = this.getEffectiveBoard();
             if (eff[r][c] === 0) {
               this.manualState[r][c] = 1;
