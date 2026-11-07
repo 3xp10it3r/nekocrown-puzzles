@@ -106,6 +106,7 @@ class TangoGameEngine {
     this.board = this.history.pop();
     window.audioEngine.playTap();
     this.refreshGridUI();
+    this.checkWinCondition();
   }
 
   requestSafeReset() {
@@ -148,8 +149,9 @@ class TangoGameEngine {
     this.checkWinCondition();
   }
 
-  getConflicts() {
+  getConflictDetails() {
     const conflicts = new Set();
+    let message = '';
     const n = this.size;
 
     for (let r = 0; r < n; r++) {
@@ -159,6 +161,7 @@ class TangoGameEngine {
           conflicts.add(`${r},${c}`);
           conflicts.add(`${r},${c+1}`);
           conflicts.add(`${r},${c+2}`);
+          if (!message) message = `⚠️ Three ${a === 1 ? '☀️ Suns' : '🌙 Moons'} in a row in Row ${r + 1}! Max 2 adjacent allowed.`;
         }
       }
     }
@@ -169,6 +172,7 @@ class TangoGameEngine {
           conflicts.add(`${r},${c}`);
           conflicts.add(`${r+1},${c}`);
           conflicts.add(`${r+2},${c}`);
+          if (!message) message = `⚠️ Three ${a === 1 ? '☀️ Suns' : '🌙 Moons'} in a column in Col ${c + 1}! Max 2 adjacent allowed.`;
         }
       }
     }
@@ -182,6 +186,7 @@ class TangoGameEngine {
       }
       if (suns > half || moons > half) {
         for (let c = 0; c < n; c++) conflicts.add(`${r},${c}`);
+        if (!message) message = `⚠️ Row ${r + 1} has too many ${suns > half ? '☀️ Suns' : '🌙 Moons'}! Only ${half} of each allowed.`;
       }
     }
     for (let c = 0; c < n; c++) {
@@ -192,6 +197,7 @@ class TangoGameEngine {
       }
       if (suns > half || moons > half) {
         for (let r = 0; r < n; r++) conflicts.add(`${r},${c}`);
+        if (!message) message = `⚠️ Col ${c + 1} has too many ${suns > half ? '☀️ Suns' : '🌙 Moons'}! Only ${half} of each allowed.`;
       }
     }
 
@@ -202,27 +208,41 @@ class TangoGameEngine {
         if (type === '=' && v1 !== v2) {
           conflicts.add(`${r1},${c1}`);
           conflicts.add(`${r2},${c2}`);
+          if (!message) message = `⚠️ '=' connector requires matching symbols between (${r1 + 1},${c1 + 1}) and (${r2 + 1},${c2 + 1})!`;
         }
         if (type === 'x' && v1 === v2) {
           conflicts.add(`${r1},${c1}`);
           conflicts.add(`${r2},${c2}`);
+          if (!message) message = `⚠️ '×' connector requires opposite symbols between (${r1 + 1},${c1 + 1}) and (${r2 + 1},${c2 + 1})!`;
         }
       }
     }
 
-    return conflicts;
+    return { conflicts, message };
   }
 
-  checkWinCondition() {
+  getConflicts() {
+    return this.getConflictDetails().conflicts;
+  }
+
+  checkWinCondition(preserveBanner = false) {
+    const { conflicts, message } = this.getConflictDetails();
+    if (conflicts.size > 0) {
+      window.audioEngine.playError();
+      this.setHintBanner(message, true);
+      return false;
+    }
+
+    const bannerEl = document.getElementById('tango-hint-banner');
+    const hadError = bannerEl && bannerEl.classList.contains('banner-error');
+    if (hadError && !preserveBanner) {
+      this.setHintBanner(`Tap once for ☀️ • Tap twice for 🌙 • '=' means Same, '×' means Opposite!`);
+    }
+
     for (let r = 0; r < this.size; r++) {
       for (let c = 0; c < this.size; c++) {
         if (this.board[r][c] === -1) return false;
       }
-    }
-    const conflicts = this.getConflicts();
-    if (conflicts.size > 0) {
-      window.audioEngine.playError();
-      return false;
     }
 
     this.isSolved = true;
@@ -266,7 +286,7 @@ class TangoGameEngine {
       window.audioEngine.playHint();
       this.setHintBanner(reason, false, true);
       this.refreshGridUI([`${r},${c}`]);
-      this.checkWinCondition();
+      this.checkWinCondition(true);
     };
 
     // 1. Mistake Fix: Check if player placed a symbol contrary to the solution
@@ -478,12 +498,18 @@ class TangoGameEngine {
     if (!this.container) return;
     this.container.innerHTML = `
       <div class="mode-header-bar">
-        <div class="puzzle-meta-row">
-          <span class="meta-badge">${this.isDailyMode ? '🌍 Daily 2/3' : `Tango #${this.levelIndex + 1} (${(this.levelData.tier || 'easy').toUpperCase()})`}</span>
-          <span class="meta-badge">3 ☀️ &amp; 3 🌙</span>
-          <span class="meta-badge timer-badge" id="tango-timer">00:00</span>
-          <button class="meta-util-btn" id="tango-reset-top-btn" title="Reset Board">↻</button>
-          <button class="meta-help-btn" id="tango-rules-btn" title="How to Play">?</button>
+        <div class="queens-status-strip">
+          <div class="level-stepper">
+            ${!this.isDailyMode ? `<button class="step-arrow" id="tango-prev-lvl" title="Previous Level">‹</button>` : ''}
+            <span class="level-pill-title">${this.isDailyMode ? '🌍 Daily 2/3' : `Tango #${this.levelIndex + 1}`}</span>
+            ${!this.isDailyMode ? `<button class="step-arrow" id="tango-next-lvl" title="Next Level">›</button>` : ''}
+          </div>
+          <div class="queens-right-pills">
+            <span class="meta-badge">3 ☀️ &amp; 3 🌙</span>
+            <span class="meta-badge timer-badge" id="tango-timer">00:00</span>
+            <button class="meta-util-btn" id="tango-reset-top-btn" title="Reset Board">↻</button>
+            <button class="meta-help-btn" id="tango-rules-btn" title="How to Play">?</button>
+          </div>
         </div>
       </div>
 
@@ -509,6 +535,14 @@ class TangoGameEngine {
       </div>
     `;
 
+    this.container.querySelector('#tango-prev-lvl')?.addEventListener('click', () => {
+      window.audioEngine.playTap();
+      this.loadLevel(Math.max(0, this.levelIndex - 1));
+    });
+    this.container.querySelector('#tango-next-lvl')?.addEventListener('click', () => {
+      window.audioEngine.playTap();
+      this.loadLevel(this.levelIndex + 1);
+    });
     this.container.querySelector('#tango-undo-btn').addEventListener('click', () => this.undo());
     this.container.querySelector('#tango-reset-top-btn').addEventListener('click', () => this.requestSafeReset());
     this.container.querySelector('#tango-hint-btn').addEventListener('click', () => this.useSmartHint());

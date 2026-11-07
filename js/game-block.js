@@ -53,6 +53,45 @@ class BlockBlastEngine {
     this.draggingIdx = null;
     this.floatingEl = null;
     this.hoverCoord = null;
+    this.restoreSavedRun();
+  }
+
+  saveRunState() {
+    if (this.isDailyMode || !this.grid || this.grid.length === 0) return;
+    try {
+      localStorage.setItem('nc_block_run', JSON.stringify({
+        grid: this.grid,
+        score: this.score,
+        comboStreak: this.comboStreak,
+        tray: this.tray
+      }));
+    } catch (_) {}
+  }
+
+  restoreSavedRun() {
+    try {
+      const raw = localStorage.getItem('nc_block_run');
+      if (!raw) return false;
+      const saved = JSON.parse(raw);
+      if (
+        saved &&
+        Array.isArray(saved.grid) &&
+        saved.grid.length === this.size &&
+        Array.isArray(saved.tray) &&
+        saved.tray.length === 3
+      ) {
+        this.grid = saved.grid;
+        this.score = saved.score || 0;
+        this.comboStreak = saved.comboStreak || 0;
+        this.tray = saved.tray;
+        if (!this.hasAnyValidMove()) {
+          this.grid = [];
+          return false;
+        }
+        return true;
+      }
+    } catch (_) {}
+    return false;
   }
 
   startNewGame(isDaily = false, targetScore = 350, onDailyWin = null) {
@@ -74,6 +113,7 @@ class BlockBlastEngine {
     this.revivesUsed = 0;
     this.selectedTrayIdx = null;
     this.spawnTray();
+    this.saveRunState();
     this.render();
   }
 
@@ -425,6 +465,7 @@ class BlockBlastEngine {
 
     this.refreshBoardPreview();
     this.renderTray();
+    this.saveRunState();
     if (window.app) window.app.refreshHeaderWallet();
   }
 
@@ -603,11 +644,13 @@ class BlockBlastEngine {
       const topLeftX = clientX - shapeWidthPx / 2 + cellSize / 2;
       const topLeftY = (clientY - offsetY) - shapeHeightPx / 2 + cellSize / 2;
 
-      const c = Math.floor((topLeftX - rect.left) / cellSize);
-      const r = Math.floor((topLeftY - rect.top) / cellSize);
+      const c = Math.round((topLeftX - rect.left) / cellSize);
+      const r = Math.round((topLeftY - rect.top) / cellSize);
 
-      if (r >= -1 && r < this.size && c >= -1 && c < this.size) {
-        this.hoverCoord = [Math.max(0, r), Math.max(0, c)];
+      if (r >= -1 && r <= this.size && c >= -1 && c <= this.size) {
+        const clampedR = Math.max(0, Math.min(this.size - maxR, r));
+        const clampedC = Math.max(0, Math.min(this.size - maxC, c));
+        this.hoverCoord = [clampedR, clampedC];
       } else {
         this.hoverCoord = null;
       }

@@ -135,7 +135,10 @@ class NeonCrownApp {
       <div class="sim-ad-card">
         <div class="sim-ad-top">
           <span class="sim-ad-badge">SMART DEDUCTION HINTS</span>
-          <span class="sim-ad-timer">${this.state.hints} 💡 Left</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="sim-ad-timer">${this.state.hints} 💡 Left</span>
+            <button class="modal-close-btn" id="hint-modal-close">✕</button>
+          </div>
         </div>
         <div class="sim-ad-stage">
           <div class="sim-ad-pulse">💡</div>
@@ -152,6 +155,7 @@ class NeonCrownApp {
     `;
     document.body.appendChild(overlay);
 
+    overlay.querySelector('#hint-modal-close').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) overlay.remove();
     });
@@ -360,6 +364,23 @@ class NeonCrownApp {
 
     const blockProgEl = document.getElementById('home-block-prog');
     if (blockProgEl) blockProgEl.textContent = `Best: ${localStorage.getItem('nc_block_best') || 0}`;
+
+    const questsBtn = document.getElementById('btn-open-quests');
+    if (questsBtn) {
+      const q = this.state.quests;
+      const hasClaimable =
+        (q.crownSolved >= 2 && !q.claimed[0]) ||
+        (q.tangoSolved >= 1 && !q.claimed[1]) ||
+        (q.blockPlayed >= 1 && !q.claimed[2]);
+      let dot = questsBtn.querySelector('.quest-notify-dot');
+      if (hasClaimable && !dot) {
+        dot = document.createElement('span');
+        dot.className = 'quest-notify-dot';
+        questsBtn.appendChild(dot);
+      } else if (!hasClaimable && dot) {
+        dot.remove();
+      }
+    }
 
     window.monetization.updateBannerVisibility();
   }
@@ -641,20 +662,25 @@ class NeonCrownApp {
           </div>
 
           <div class="iap-grid">
-            ${Object.values(products).map(p => `
-              <div class="iap-card ${p.badge ? 'iap-featured' : ''}">
-                ${p.badge ? `<span class="iap-ribbon">${p.badge}</span>` : ''}
-                <div class="iap-icon-bubble">${p.icon}</div>
-                <div class="iap-info">
-                  <h4>${p.title}</h4>
-                  <p>${p.desc}</p>
+            ${Object.values(products).map(p => {
+              const isOwned =
+                (p.id === 'remove_ads_forever' && window.monetization.adsRemoved) ||
+                (p.id === 'vip_founder_bundle' && window.monetization.isVip);
+              return `
+                <div class="iap-card ${p.badge ? 'iap-featured' : ''}">
+                  ${p.badge ? `<span class="iap-ribbon">${p.badge}</span>` : ''}
+                  <div class="iap-icon-bubble">${p.icon}</div>
+                  <div class="iap-info">
+                    <h4>${p.title}</h4>
+                    <p>${p.desc}</p>
+                  </div>
+                  <button class="btn-primary iap-buy-btn" data-sku="${p.id}" ${isOwned ? 'disabled' : ''}>
+                    ${!isOwned && p.strikePrice ? `<span class="strike-price">${p.strikePrice}</span> ` : ''}
+                    ${isOwned ? 'Owned ✓' : p.price}
+                  </button>
                 </div>
-                <button class="btn-primary iap-buy-btn" data-sku="${p.id}">
-                  ${p.strikePrice ? `<span class="strike-price">${p.strikePrice}</span> ` : ''}
-                  ${(p.id === 'remove_ads_forever' && window.monetization.adsRemoved) ? 'Owned ✓' : p.price}
-                </button>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
 
           <h4 class="section-subhead">🎨 Unlockable Visual Themes (Spend Coins)</h4>
@@ -747,9 +773,9 @@ class NeonCrownApp {
   openQuestsModal() {
     const q = this.state.quests;
     const questItems = [
-      { idx: 0, title: 'Solve 2 Neko Queens Puzzles', cur: q.crownSolved, target: 2, rewardCoins: 100, rewardHints: 1 },
-      { idx: 1, title: 'Solve 1 Binary Tango Grid', cur: q.tangoSolved, target: 1, rewardCoins: 80, rewardHints: 1 },
-      { idx: 2, title: 'Play Neon Block Blast', cur: q.blockPlayed, target: 1, rewardCoins: 60, rewardHints: 0 }
+      { idx: 0, icon: '👑', title: 'Solve 2 Neko Queens Puzzles', cur: q.crownSolved, target: 2, rewardCoins: 100, rewardHints: 1 },
+      { idx: 1, icon: '☀️', title: 'Solve 1 Binary Tango Grid', cur: q.tangoSolved, target: 1, rewardCoins: 80, rewardHints: 1 },
+      { idx: 2, icon: '🟦', title: 'Play Neon Block Blast', cur: q.blockPlayed, target: 1, rewardCoins: 60, rewardHints: 0 }
     ];
 
     const overlay = document.createElement('div');
@@ -757,21 +783,30 @@ class NeonCrownApp {
     overlay.innerHTML = `
       <div class="modal-sheet">
         <div class="modal-sheet-header">
-          <h3>🎯 Daily Quests &amp; Rewards</h3>
+          <div>
+            <h3>🎯 Daily Quests &amp; Rewards</h3>
+            <span class="store-region-tag">Complete daily goals for free Coins &amp; Hints</span>
+          </div>
           <button class="modal-close-btn" id="quests-close">✕</button>
         </div>
         <div class="modal-sheet-body">
           ${questItems.map(item => {
+            const prog = Math.min(item.cur, item.target);
+            const pct = Math.round((prog / item.target) * 100);
             const done = item.cur >= item.target;
             const claimed = q.claimed[item.idx];
             return `
-              <div class="quest-row">
+              <div class="quest-row ${done && !claimed ? 'quest-ready' : ''}">
+                <div class="iap-icon-bubble">${item.icon}</div>
                 <div class="quest-info">
                   <h4>${item.title}</h4>
-                  <p>Progress: ${Math.min(item.cur, item.target)} / ${item.target} • Reward: +${item.rewardCoins} 🪙 ${item.rewardHints ? `+${item.rewardHints} 💡` : ''}</p>
+                  <p>Reward: <strong>+${item.rewardCoins} 🪙</strong> ${item.rewardHints ? `<strong>+${item.rewardHints} 💡</strong>` : ''}</p>
+                  <div class="quest-progress-bar">
+                    <div class="quest-progress-fill" style="width: ${pct}%;"></div>
+                  </div>
                 </div>
                 <button class="btn-primary quest-claim-btn" data-qidx="${item.idx}" ${(!done || claimed) ? 'disabled' : ''}>
-                  ${claimed ? 'Claimed ✓' : done ? 'Claim 🎁' : `${Math.min(item.cur, item.target)}/${item.target}`}
+                  ${claimed ? 'Claimed ✓' : done ? 'Claim 🎁' : `${prog} / ${item.target}`}
                 </button>
               </div>
             `;
@@ -794,6 +829,7 @@ class NeonCrownApp {
           this.state.quests.claimed[idx] = true;
           this.addCoins(item.rewardCoins);
           this.addHints(item.rewardHints);
+          this.updateHomeDashboard();
           window.audioEngine.playWinFanfare();
           this.showToast(`Quest Reward Claimed! +${item.rewardCoins} 🪙`);
           overlay.remove();
@@ -817,6 +853,8 @@ class NeonCrownApp {
       { code: 'tr', label: '🇹🇷 Türkçe' }
     ];
 
+    const unlockedThemesList = Object.values(THEMES).filter(t => this.state.unlockedThemes.includes(t.id));
+
     const overlay = document.createElement('div');
     overlay.className = 'sim-ad-overlay';
     overlay.innerHTML = `
@@ -839,6 +877,15 @@ class NeonCrownApp {
               <span>Vibration</span>
             </div>
             <button class="toggle-pill-btn ${window.audioEngine.hapticsEnabled ? 'is-on' : ''}" id="toggle-haptic-btn">${window.audioEngine.hapticsEnabled ? 'ON' : 'OFF'}</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-item-left">
+              <span class="setting-icon-badge">🎨</span>
+              <span>Board Theme</span>
+            </div>
+            <select id="theme-select" class="lang-dropdown">
+              ${unlockedThemesList.map(t => `<option value="${t.id}" ${this.state.theme === t.id ? 'selected' : ''}>${t.name.replace(' (Default)', '')}</option>`).join('')}
+            </select>
           </div>
           <div class="setting-row">
             <div class="setting-item-left">
@@ -876,6 +923,12 @@ class NeonCrownApp {
       localStorage.setItem('nc_haptics', String(window.audioEngine.hapticsEnabled));
       e.currentTarget.textContent = window.audioEngine.hapticsEnabled ? 'ON' : 'OFF';
       e.currentTarget.classList.toggle('is-on', window.audioEngine.hapticsEnabled);
+    });
+
+    overlay.querySelector('#theme-select').addEventListener('change', (e) => {
+      this.applyTheme(e.target.value);
+      window.audioEngine.playTap();
+      this.showToast(`Theme updated!`);
     });
 
     overlay.querySelector('#lang-select').addEventListener('change', (e) => {
