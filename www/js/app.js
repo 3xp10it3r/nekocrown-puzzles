@@ -250,9 +250,9 @@ class NeonCrownApp {
       brandHome.classList.add('hidden');
       backBar.classList.remove('hidden');
       const titles = {
-        crown: '🐾 Queens',
-        block: '🟦 Blocks',
-        tango: '☀️ Tango'
+        crown: 'Neko Queens',
+        block: 'Block Blast',
+        tango: 'Binary Tango'
       };
       if (modeTitle) modeTitle.textContent = titles[screenName] || 'NekoCrown';
     }
@@ -359,7 +359,7 @@ class NeonCrownApp {
     if (tangoProgEl) tangoProgEl.textContent = `Level ${(this.state.progress.tango || 0) + 1}`;
 
     const blockProgEl = document.getElementById('home-block-prog');
-    if (blockProgEl) blockProgEl.textContent = `🏆 ${localStorage.getItem('nc_block_best') || 0}`;
+    if (blockProgEl) blockProgEl.textContent = `Best: ${localStorage.getItem('nc_block_best') || 0}`;
 
     window.monetization.updateBannerVisibility();
   }

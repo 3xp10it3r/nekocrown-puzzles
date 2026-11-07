@@ -350,7 +350,6 @@ html, body {
 }
 
 .btn-3d-gold:active {
-  transform: translateY(2px);
   box-shadow: 0 1px 0 #B27800 !important;
 }
 
@@ -372,11 +371,10 @@ html, body {
   cursor: pointer;
   flex-shrink: 0;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
-  transition: transform 0.12s ease, border-color 0.15s ease;
 }
 
 .mode-card:active {
-  transform: translateY(2px);
+  border-color: var(--accent-primary);
 }
 
 .mode-card:hover {
@@ -473,7 +471,7 @@ html, body {
 }
 
 .quick-tile-btn:active {
-  transform: translateY(2px);
+  border-color: var(--accent-primary);
 }
 
 .quick-tile-btn span.tile-emoji {
@@ -657,7 +655,8 @@ html, body {
 }
 
 .queens-glass-tray {
-  width: min(100%, 356px);
+  width: min(88vw, 344px);
+  height: min(88vw, 344px);
   padding: 10px;
   background-color: var(--bg-secondary);
   border: 2px solid var(--border-subtle);
@@ -666,11 +665,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .crown-grid {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(var(--grid-size, 6), minmax(0, 1fr));
   grid-template-rows: repeat(var(--grid-size, 6), minmax(0, 1fr));
@@ -683,7 +683,7 @@ html, body {
   border-radius: 14px;
 }
 
-/* 3D Rounded Satin Cushion Squircle Tiles — ZERO BLACK BORDERS */
+/* 3D Rounded Satin Cushion Squircle Tiles — ZERO BLACK BORDERS & ZERO LAYER CORRUPTION */
 .crown-cell {
   background-color: var(--tile-bot, #F472B6);
   border-radius: 10px;
@@ -694,42 +694,36 @@ html, body {
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .crown-cell:active {
-  transform: translateY(2px) scale(0.96);
   box-shadow: 0 1px 0 var(--tile-edge, #DB2777);
 }
 
-/* Recessed / Dimmed State When Marked With X */
+/* Recessed / Dimmed State When Marked With X (no opacity/transform to avoid Android GPU layer box) */
 .crown-cell.cell-x {
-  transform: translateY(1.5px);
   box-shadow: 0 1.5px 0 var(--tile-edge, #DB2777);
-  opacity: 0.88;
 }
 
-/* Crisp Recessed Cross Pill Marker (Replaces Ugly Text '×') */
+/* Crisp Recessed Cross Pill Marker */
 .x-marker-pill {
   width: 52%;
   height: 52%;
   border-radius: 50%;
-  background-color: rgba(15, 23, 42, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  color: rgba(15, 23, 42, 0.75);
+  background-color: rgba(15, 23, 42, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  color: rgba(15, 23, 42, 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: xRippleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-  animation-delay: var(--ripple-delay, 0ms);
   pointer-events: none;
 }
 
 .cell-auto-x .x-marker-pill {
   width: 44%;
   height: 44%;
-  background-color: rgba(15, 23, 42, 0.12);
-  color: rgba(15, 23, 42, 0.55);
+  background-color: rgba(15, 23, 42, 0.14);
+  color: rgba(15, 23, 42, 0.62);
 }
 
 .x-marker-svg {
@@ -742,12 +736,11 @@ html, body {
   width: 82%;
   height: 82%;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.92);
+  background-color: #FFFFFF;
   box-shadow: 0 2px 0 rgba(15, 23, 42, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: crownBounceIn 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
 
@@ -758,16 +751,7 @@ html, body {
 
 /* Sparkle Particle Burst on Cat Placement */
 .cat-sparkle-particle {
-  position: absolute;
-  font-size: 13px;
-  pointer-events: none;
-  z-index: 30;
-  animation: sparkleBurst 0.52s ease-out forwards;
-}
-
-@keyframes sparkleBurst {
-  0% { transform: translate(0, 0) scale(0.4); opacity: 1; }
-  100% { transform: translate(var(--tx, 20px), var(--ty, -20px)) scale(1.1); opacity: 0; }
+  display: none;
 }
 
 /* Diagonal Red Hazard Stripes on Conflicting Row / Col / Territory */
@@ -786,11 +770,10 @@ html, body {
   pointer-events: none;
 }
 
-/* Conflicting Cat Cell Highlight & Shake */
+/* Conflicting Cat Cell Highlight */
 .crown-cell.cell-conflict-crown {
   border-color: #FFE4E6 !important;
   box-shadow: 0 3px 0 #BE123C, 0 0 0 2.5px #F43F5E !important;
-  animation: shakeError 0.36s ease;
 }
 
 .crown-cell.cell-conflict-crown .crown-badge-wrap {
@@ -798,10 +781,8 @@ html, body {
   box-shadow: 0 0 0 2px #E11D48;
 }
 
-/* Victory Wave Celebration across all cells */
 .crown-cell.cell-victory-wave {
-  animation: victoryWave 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: var(--wave-delay, 0ms);
+  border-color: #FFFFFF;
 }
 
 .cell-hint-glow {
@@ -818,7 +799,7 @@ html, body {
 }
 
 .score-box {
-  background: var(--bg-card);
+  background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 6px 10px;
@@ -847,8 +828,8 @@ html, body {
 }
 
 .block-grid {
-  width: min(100%, 332px);
-  aspect-ratio: 1 / 1;
+  width: min(76vw, 284px);
+  height: min(76vw, 284px);
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   grid-template-rows: repeat(8, minmax(0, 1fr));
@@ -858,12 +839,12 @@ html, body {
   border: 2px solid var(--border-subtle);
   border-radius: 16px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
 }
 
 .block-cell {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
-  transition: transform 0.1s ease, background-color 0.1s ease;
 }
 
 .block-cell.block-filled {
@@ -872,17 +853,16 @@ html, body {
 }
 
 .block-cell.block-ghost {
-  background: color-mix(in srgb, var(--tile-color, #00F5D4) 48%, transparent);
+  background-color: rgba(0, 245, 212, 0.28);
   border: 1.5px dashed var(--tile-color, #00F5D4);
 }
 
 .block-cell.block-will-clear {
-  filter: brightness(1.3);
   box-shadow: 0 0 0 2px #FFE066 !important;
 }
 
 .cell-blast-anim {
-  animation: blastFlash 0.35s ease;
+  background-color: #FFFFFF !important;
 }
 
 .floating-score-popup {
@@ -892,21 +872,20 @@ html, body {
   transform: translate(-50%, -50%);
   background-color: #FFC300;
   color: #140D00;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 900;
-  padding: 7px 16px;
+  padding: 6px 14px;
   border-radius: 99px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.5);
   pointer-events: none;
   z-index: 60;
-  animation: floatUpFade 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
 
 .block-tray-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  min-height: 92px;
+  min-height: 82px;
   flex-shrink: 0;
 }
 
@@ -929,7 +908,8 @@ html, body {
 }
 
 .tray-slot.unplayable-slot {
-  opacity: 0.36;
+  background-color: rgba(15, 23, 42, 0.45);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .mini-polyomino {
@@ -958,7 +938,7 @@ html, body {
 
 /* BINARY TANGO BOARD WITH LIVE COUNTERS & HIGH-CONTRAST CONNECTORS */
 .tango-board-frame {
-  width: min(100%, 332px);
+  width: min(88vw, 326px);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -971,20 +951,22 @@ html, body {
   grid-template-columns: repeat(var(--grid-size, 6), minmax(0, 1fr));
   padding-left: 40px;
   gap: 7px;
+  height: 30px;
 }
 
 .tango-main-row {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  display: flex;
   gap: 6px;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .tango-row-counters {
   width: 34px;
+  height: calc(min(88vw, 326px) - 40px);
   display: grid;
   grid-template-rows: repeat(var(--grid-size, 6), minmax(0, 1fr));
   gap: 7px;
+  flex-shrink: 0;
 }
 
 .tango-axis-pill {
@@ -1015,8 +997,8 @@ html, body {
 }
 
 .tango-grid {
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  width: calc(min(88vw, 326px) - 40px);
+  height: calc(min(88vw, 326px) - 40px);
   display: grid;
   grid-template-columns: repeat(var(--grid-size, 6), minmax(0, 1fr));
   grid-template-rows: repeat(var(--grid-size, 6), minmax(0, 1fr));
@@ -1026,6 +1008,7 @@ html, body {
   border: 2px solid var(--border-subtle);
   border-radius: 16px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
 }
 
 .tango-cell {
@@ -1048,7 +1031,6 @@ html, body {
 .tango-cell.cell-conflict {
   border-color: var(--danger);
   box-shadow: 0 0 0 2px var(--danger);
-  animation: shakeError 0.36s ease;
 }
 
 .locked-pin {
@@ -1100,13 +1082,13 @@ html, body {
 .edge-right {
   right: -14.5px;
   top: 50%;
-  transform: translateY(-50%);
+  margin-top: -10px;
 }
 
 .edge-bottom {
   bottom: -14.5px;
   left: 50%;
-  transform: translateX(-50%);
+  margin-left: -10px;
 }
 
 /* Game Controls Bar */
@@ -1131,7 +1113,7 @@ html, body {
 }
 
 .ctrl-btn:active {
-  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
 .ctrl-btn.active-toggle {
@@ -1161,7 +1143,8 @@ html, body {
 }
 
 .btn-primary:disabled {
-  opacity: 0.45;
+  background-color: #1E293B;
+  color: #64748B;
   cursor: not-allowed;
 }
 
@@ -1213,16 +1196,11 @@ html, body {
 .bottom-nav-btn .nav-svg {
   width: 22px;
   height: 22px;
-  transition: transform 0.15s ease;
 }
 
-.bottom-nav-btn.active .nav-svg {
-  transform: translateY(-1px) scale(1.08);
-}
-
-/* AdMob Adaptive Banner Slot (sized to clear Android 320x50 / Adaptive Banner) */
+/* AdMob Adaptive Banner Slot (sized to clear Android 468x60 / 320x50 Adaptive Banner) */
 .admob-banner-bar {
-  min-height: calc(58px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(68px + env(safe-area-inset-bottom, 0px));
   background-color: #05070F;
   border-top: 1px solid var(--border-subtle);
   display: flex;

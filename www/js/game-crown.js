@@ -351,18 +351,8 @@ class CrownGameEngine {
     this.checkWinCondition();
   }
 
-  spawnSparkles(cellEl) {
-    const sparkles = ['✨', '🐾', '💛'];
-    for (let i = 0; i < 4; i++) {
-      const sp = document.createElement('span');
-      sp.className = 'cat-sparkle-particle';
-      sp.textContent = sparkles[i % sparkles.length];
-      const angle = (i * 90 + 45) * (Math.PI / 180);
-      sp.style.setProperty('--tx', `${Math.cos(angle) * 26}px`);
-      sp.style.setProperty('--ty', `${Math.sin(angle) * 26}px`);
-      cellEl.appendChild(sp);
-      setTimeout(() => sp.remove(), 550);
-    }
+  spawnSparkles(_cellEl) {
+    // Kept as a no-op to avoid Android WebView hardware tile invalidation from overflow particles
   }
 
   getConflictDetails() {
@@ -482,12 +472,6 @@ class CrownGameEngine {
     const gridEl = document.getElementById('crown-grid-el');
     if (!gridEl) return;
     gridEl.classList.add('board-solved-glow');
-    gridEl.querySelectorAll('.crown-cell').forEach(cell => {
-      const r = parseInt(cell.dataset.r, 10);
-      const c = parseInt(cell.dataset.c, 10);
-      cell.style.setProperty('--wave-delay', `${(r + c) * 45}ms`);
-      cell.classList.add('cell-victory-wave');
-    });
   }
 
   buildColoredEmojiBoard() {

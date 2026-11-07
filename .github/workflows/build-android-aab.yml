@@ -54,6 +54,37 @@ jobs:
             sed -i "s|</application>|    <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"${ADMOB_APP_ID}\"/>\n    </application>|" android/app/src/main/AndroidManifest.xml
           fi
 
+          cat << 'EOF' > android/app/src/main/java/com/nekocrown/cozypuzzles/MainActivity.java
+          package com.nekocrown.cozypuzzles;
+
+          import android.os.Bundle;
+          import android.view.View;
+          import android.webkit.WebView;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              private void configureWebView() {
+                  if (getBridge() != null && getBridge().getWebView() != null) {
+                      final WebView webView = getBridge().getWebView();
+                      webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                      webView.post(() -> webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null));
+                  }
+              }
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  configureWebView();
+              }
+
+              @Override
+              public void onResume() {
+                  super.onResume();
+                  configureWebView();
+              }
+          }
+          EOF
+
       - name: Generate Upload Keystore (or Decode from GitHub Secrets)
         run: |
           if [ -n "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" ]; then
