@@ -258,7 +258,7 @@ class CrownGameEngine {
     const btn = document.getElementById('crown-autox-btn');
     if (btn) {
       btn.classList.toggle('active-toggle', this.autoXEnabled);
-      btn.innerHTML = `Auto-Mark: <strong>${this.autoXEnabled ? 'ON' : 'OFF'}</strong>`;
+      btn.innerHTML = `✕ Auto: <strong>${this.autoXEnabled ? 'ON' : 'OFF'}</strong>`;
     }
     window.audioEngine.playTap();
     this.refreshGridUI();
@@ -271,7 +271,7 @@ class CrownGameEngine {
     localStorage.setItem('nc_cat_mascot', this.activeMascot);
     const btn = document.getElementById('crown-mascot-btn');
     if (btn) {
-      btn.innerHTML = `🐱 Cat: <strong>${CAT_MASCOTS[this.activeMascot].name}</strong>`;
+      btn.innerHTML = `🐱 <strong>${CAT_MASCOTS[this.activeMascot].name}</strong>`;
     }
     window.audioEngine.playCrownPlace();
     this.refreshGridUI();
@@ -773,10 +773,10 @@ class CrownGameEngine {
       <div class="game-controls-bar">
         <button class="ctrl-btn" id="crown-undo-btn">↩ Undo</button>
         <button class="ctrl-btn" id="crown-mascot-btn">
-          🐱 Cat: <strong>${curMascot.name}</strong>
+          🐱 <strong>${curMascot.name}</strong>
         </button>
         <button class="ctrl-btn ${this.autoXEnabled ? 'active-toggle' : ''}" id="crown-autox-btn">
-          Auto-Mark: <strong>${this.autoXEnabled ? 'ON' : 'OFF'}</strong>
+          ✕ Auto: <strong>${this.autoXEnabled ? 'ON' : 'OFF'}</strong>
         </button>
         <button class="ctrl-btn hint-cta-btn" id="crown-hint-btn">
           💡 Hint (<span class="hint-count-inline">${window.app ? window.app.state.hints : 5}</span>)

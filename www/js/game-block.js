@@ -227,17 +227,8 @@ class BlockBlastEngine {
     setTimeout(() => pop.remove(), 950);
   }
 
-  animateClearedCells(clearedSet) {
-    const gridEl = document.getElementById('block-grid-el');
-    if (!gridEl) return;
-    clearedSet.forEach(key => {
-      const [r, c] = key.split(',');
-      const cell = gridEl.querySelector(`.block-cell[data-r="${r}"][data-c="${c}"]`);
-      if (cell) {
-        cell.classList.add('cell-blast-anim');
-        setTimeout(() => cell.classList.remove('cell-blast-anim'), 360);
-      }
-    });
+  animateClearedCells(_clearedSet) {
+    // Cleared rows/columns disappear immediately without flashing a white row
   }
 
   showComboToast(text) {
@@ -348,6 +339,7 @@ class BlockBlastEngine {
             <span class="score-label">STREAK</span>
             <span class="score-val" id="block-combo-val">🔥 x${Math.max(1, this.comboStreak)}</span>
           </div>
+          <button class="block-restart-top-btn" id="block-new-btn" title="Restart Run">↻</button>
         </div>
       </div>
 
@@ -362,11 +354,10 @@ class BlockBlastEngine {
       <div class="block-tray-bar" id="block-tray-el"></div>
 
       <div class="game-controls-bar">
-        <button class="ctrl-btn" id="block-reroll-btn">🔄 Reroll Tray (40 🪙)</button>
+        <button class="ctrl-btn" id="block-reroll-btn">🔄 Reroll (40 🪙)</button>
         <button class="ctrl-btn hint-cta-btn" id="block-bomb-btn">
           💣 Blast 4×4 (<span class="hint-count-inline">${window.app ? window.app.state.hints : 5}</span> 💡)
         </button>
-        <button class="meta-util-btn" id="block-new-btn" title="Restart Run">↻</button>
       </div>
     `;
 

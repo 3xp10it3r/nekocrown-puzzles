@@ -214,6 +214,13 @@ class MonetizationManager {
     if (!bannerEl) return;
     if (this.adsRemoved) {
       bannerEl.classList.add('hidden');
+      if (this.isNative && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
+        try {
+          const { AdMob } = window.Capacitor.Plugins;
+          if (AdMob.hideBanner) AdMob.hideBanner().catch(() => {});
+          if (AdMob.removeBanner) AdMob.removeBanner().catch(() => {});
+        } catch (_) {}
+      }
     } else {
       bannerEl.classList.remove('hidden');
       if (this.isNative) {
