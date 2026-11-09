@@ -86,9 +86,9 @@ function detectDefaultCurrency() {
 const MONETIZATION_CONFIG = {
   admob: {
     androidAppId: "ca-app-pub-6723358014489373~8710592396",
-    bannerId: "ca-app-pub-3940256099942544/6300978111",
-    interstitialId: "ca-app-pub-3940256099942544/1033173712",
-    rewardedId: "ca-app-pub-3940256099942544/5224354917"
+    bannerId: "ca-app-pub-6723358014489373/8048247417",
+    interstitialId: "ca-app-pub-6723358014489373/9295035424",
+    rewardedId: "ca-app-pub-6723358014489373/2632269200"
   },
   revenueCat: {
     androidApiKey: "goog_replace_with_your_revenuecat_public_sdk_key"
@@ -196,7 +196,8 @@ class MonetizationManager {
             adId: MONETIZATION_CONFIG.admob.bannerId,
             adSize: 'ADAPTIVE_BANNER',
             position: 'BOTTOM_CENTER',
-            margin: 0
+            margin: 0,
+            isTesting: false
           });
         }
       } catch (err) {
@@ -237,7 +238,10 @@ class MonetizationManager {
     if (this.isNative && window.Capacitor.Plugins.AdMob) {
       try {
         const { AdMob } = window.Capacitor.Plugins;
-        await AdMob.prepareRewardVideoAd({ adId: MONETIZATION_CONFIG.admob.rewardedId });
+        await AdMob.prepareRewardVideoAd({
+          adId: MONETIZATION_CONFIG.admob.rewardedId,
+          isTesting: false
+        });
         const rewardItem = await AdMob.showRewardVideoAd();
         if (rewardItem) {
           this.adStats.rewarded += 1;
@@ -293,7 +297,10 @@ class MonetizationManager {
     if (this.isNative && window.Capacitor.Plugins.AdMob) {
       try {
         const { AdMob } = window.Capacitor.Plugins;
-        await AdMob.prepareInterstitial({ adId: MONETIZATION_CONFIG.admob.interstitialId });
+        await AdMob.prepareInterstitial({
+          adId: MONETIZATION_CONFIG.admob.interstitialId,
+          isTesting: false
+        });
         await AdMob.showInterstitial();
         this.adStats.interstitial += 1;
         this.saveStats();
@@ -301,6 +308,8 @@ class MonetizationManager {
         return true;
       } catch (err) {
         console.warn('Native Interstitial error:', err);
+        if (onDone) onDone();
+        return false;
       }
     }
 
