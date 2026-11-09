@@ -45,7 +45,7 @@ jobs:
         env:
           VERSION_CODE: ${{ github.event.inputs.version_code || '1' }}
           VERSION_NAME: ${{ github.event.inputs.version_name || '1.0.0' }}
-          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID || 'ca-app-pub-3940256099942544~3347511713' }}
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID || 'ca-app-pub-6723358014489373~8710592396' }}
         run: |
           sed -i "s/versionCode 1/versionCode ${VERSION_CODE}/g" android/app/build.gradle
           sed -i "s/versionName \"1.0\"/versionName \"${VERSION_NAME}\"/g" android/app/build.gradle
