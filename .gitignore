@@ -3,6 +3,7 @@ android/
 ios/
 .DS_Store
 *.jks
+!signing/upload-keystore.jks
 *.keystore
 *.log
 npm-debug.log*

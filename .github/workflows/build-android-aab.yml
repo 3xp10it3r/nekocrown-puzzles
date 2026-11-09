@@ -35,11 +35,20 @@ jobs:
 
       - name: Install Dependencies & Add Android Platform
         run: |
+          sudo apt-get update && sudo apt-get install -y librsvg2-bin
           npm install --legacy-peer-deps
           if [ ! -d "android" ]; then
             npx cap add android
           fi
           npx cap sync android
+          rsvg-convert -w 512 -h 512 store-assets/app-icon-512x512.svg -o store-assets/app-icon-512x512.png
+          rsvg-convert -w 1024 -h 500 store-assets/feature-graphic-1024x500.svg -o store-assets/feature-graphic-1024x500.png
+          for pair in "mdpi:48:108" "hdpi:72:162" "xhdpi:96:216" "xxhdpi:144:324" "xxxhdpi:192:432"; do
+            IFS=":" read -r dpi sz fg <<< "$pair"
+            rsvg-convert -w "$sz" -h "$sz" store-assets/app-icon-512x512.svg -o "android/app/src/main/res/mipmap-${dpi}/ic_launcher.png"
+            rsvg-convert -w "$sz" -h "$sz" store-assets/app-icon-512x512.svg -o "android/app/src/main/res/mipmap-${dpi}/ic_launcher_round.png"
+            rsvg-convert -w "$fg" -h "$fg" store-assets/app-icon-512x512.svg -o "android/app/src/main/res/mipmap-${dpi}/ic_launcher_foreground.png"
+          done
 
       - name: Inject Version Code & AdMob App ID
         env:
@@ -85,10 +94,14 @@ jobs:
           }
           EOF
 
-      - name: Generate Upload Keystore (or Decode from GitHub Secrets)
+      - name: Load Permanent Upload Keystore
         run: |
           if [ -n "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.UPLOAD_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          elif [ -f "signing/upload-keystore.jks" ]; then
+            cp signing/upload-keystore.jks android/app/upload-keystore.jks
+          elif [ -f "signing/upload-keystore.jks.b64" ]; then
+            base64 --decode signing/upload-keystore.jks.b64 > android/app/upload-keystore.jks
           else
             keytool -genkeypair -v \
               -keystore android/app/upload-keystore.jks \
@@ -98,6 +111,7 @@ jobs:
               -keypass neoncrown2026 \
               -dname "CN=NekoCrown Studio, OU=Mobile, O=NekoCrown, L=Bengaluru, S=KA, C=IN"
           fi
+          keytool -list -v -keystore android/app/upload-keystore.jks -storepass neoncrown2026 -alias upload
 
       - name: Build Debug APK & Signed Release AAB
         env:
